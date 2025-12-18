@@ -1,0 +1,20 @@
+# Railway Configuration for Bryx Telegram Bot
+# This is a separate service from CRM
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "dotnet BryxBot.dll"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# ============================================
+# Environment Variables for Bot
+# ============================================
+# Set these in Railway dashboard:
+# - BOT_TOKEN (Telegram bot token)
+# - CRM_API_URL (URL of your CRM service, e.g., https://your-crm.railway.app/api/bot/)
+# - ALLOWED_USERS (comma-separated Telegram IDs)
+# - ASPNETCORE_ENVIRONMENT=Production
