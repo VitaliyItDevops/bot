@@ -381,7 +381,7 @@ public class MessageHandler
         try
         {
             // Отправляем запрос к CRM API для изменения статуса
-            var response = await _httpClient.PostAsync($"sales/{saleId}/ship", null);
+            var response = await _httpClient.PostAsync($"/sales/{saleId}/ship", null);
 
             if (response.IsSuccessStatusCode)
             {
@@ -436,7 +436,7 @@ public class MessageHandler
     {
         try
         {
-            var response = await _httpClient.GetAsync("users");
+            var response = await _httpClient.GetAsync("/users");
 
             if (response.IsSuccessStatusCode)
             {
