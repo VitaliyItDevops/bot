@@ -623,9 +623,3 @@ public class MessageHandler
         return isAuthorized;
     }
 }
-
-public class AllowedUsersResponse
-{
-    public List<string> AllowedUsers { get; set; } = new();
-    public int Count { get; set; }
-}
