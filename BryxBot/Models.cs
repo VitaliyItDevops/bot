@@ -78,3 +78,10 @@ public class CategoryStats
     public string Category { get; set; } = string.Empty;
     public int Count { get; set; }
 }
+
+public class RegistrationResponse
+{
+    public string Message { get; set; } = string.Empty;
+    public bool IsConfirmed { get; set; }
+    public int UserId { get; set; }
+}
