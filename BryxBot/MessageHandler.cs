@@ -86,7 +86,104 @@ public class MessageHandler
         await action;
     }
 
-    private async Task HandleStart(ITelegramBotClient botClient, long chatId, CancellationToken cancellationToken)
+    private async Task HandleStart(ITelegramBotClient botClient, long chatId, CancellationToken cancellationToken, Message message)
+    {
+        // Регистрируем пользователя в CRM
+        try
+        {
+            var username = message.From?.Username;
+            var firstName = message.From?.FirstName;
+            var lastName = message.From?.LastName;
+
+            if (!string.IsNullOrEmpty(username))
+            {
+                var registrationRequest = new
+                {
+                    Username = username,
+                    ChatId = chatId.ToString(),
+                    FirstName = firstName,
+                    LastName = lastName
+                };
+
+                var response = await _httpClient.PostAsJsonAsync("/users/register", registrationRequest);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<RegistrationResponse>();
+
+                    if (result?.IsConfirmed == true)
+                    {
+                        var welcomeMessage = """
+                            👋 Добро пожаловать в Bryx CRM Bot!
+
+                            ✅ Вы подтверждены и можете использовать бота.
+
+                            Используйте /help для просмотра доступных команд.
+                            Используйте /menu для доступа к главному меню.
+                            """;
+
+                        await botClient.SendMessage(
+                            chatId: chatId,
+                            text: welcomeMessage,
+                            cancellationToken: cancellationToken
+                        );
+                    }
+                    else
+                    {
+                        var pendingMessage = """
+                            👋 Здравствуйте!
+
+                            ⏳ Ваша заявка на доступ к Bryx CRM Bot отправлена администратору.
+
+                            Пожалуйста, ожидайте подтверждения. После подтверждения вы сможете использовать все функции бота.
+
+                            Попробуйте снова отправить /start через некоторое время, чтобы проверить статус.
+                            """;
+
+                        await botClient.SendMessage(
+                            chatId: chatId,
+                            text: pendingMessage,
+                            cancellationToken: cancellationToken
+                        );
+                    }
+
+                    _logger.LogInformation("User @{Username} registered with ChatId {ChatId}, IsConfirmed: {IsConfirmed}",
+                        username, chatId, result?.IsConfirmed);
+                }
+                else
+                {
+                    _logger.LogError("Failed to register user. Status: {StatusCode}", response.StatusCode);
+                    await SendDefaultWelcome(botClient, chatId, cancellationToken);
+                }
+            }
+            else
+            {
+                var noUsernameMessage = """
+                    👋 Здравствуйте!
+
+                    ⚠️ У вас не установлен Telegram username.
+
+                    Для использования бота необходимо установить username в настройках Telegram:
+                    Settings → Edit Profile → Username
+
+                    После установки username отправьте /start снова.
+                    """;
+
+                await botClient.SendMessage(
+                    chatId: chatId,
+                    text: noUsernameMessage,
+                    cancellationToken: cancellationToken
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during user registration");
+            await SendDefaultWelcome(botClient, chatId, cancellationToken);
+        }
+    }
+
+    private async Task SendDefaultWelcome(ITelegramBotClient botClient, long chatId, CancellationToken cancellationToken)
     {
         var message = """
             👋 Добро пожаловать в Bryx CRM Bot!
