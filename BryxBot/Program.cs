@@ -7,7 +7,8 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile("appsettings.Production.json", optional: true, reloadOnChange: true);
 
 // Маппинг переменных окружения для Railway
 var botToken = Environment.GetEnvironmentVariable("BOT_TOKEN");
