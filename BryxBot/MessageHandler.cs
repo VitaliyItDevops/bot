@@ -26,12 +26,14 @@ public class MessageHandler
         _config = config.Value;
         _httpClient = httpClientFactory.CreateClient();
 
-        // Убеждаемся, что URL оканчивается на /api/bot
+        // Убеждаемся, что URL оканчивается на /api/bot/
         var apiUrl = _config.CrmApiUrl.TrimEnd('/');
         if (!apiUrl.EndsWith("/api/bot"))
         {
             apiUrl += "/api/bot";
         }
+        // ВАЖНО: BaseAddress должен заканчиваться слешем для корректной работы с относительными путями
+        apiUrl += "/";
         _httpClient.BaseAddress = new Uri(apiUrl);
 
         _logger.LogInformation("MessageHandler initialized with CRM API URL: {ApiUrl}", apiUrl);
