@@ -15,7 +15,7 @@ public class MessageHandler
     private readonly HttpClient _httpClient;
     private List<string> _allowedUsers = new();
     private DateTime _lastUsersUpdate = DateTime.MinValue;
-    private readonly TimeSpan _usersUpdateInterval = TimeSpan.FromMinutes(5);
+    private readonly TimeSpan _usersUpdateInterval = TimeSpan.FromMinutes(1);
 
     public MessageHandler(
         ILogger<MessageHandler> logger,
@@ -456,7 +456,18 @@ public class MessageHandler
             callbackQuery.Data, username ?? "без_username", userId);
 
         // Проверка авторизации по username
-        if (!await IsUserAuthorizedAsync(username))
+        var isAuthorized = await IsUserAuthorizedAsync(username);
+
+        // Если не авторизован, обновляем список принудительно и проверяем еще раз
+        // (на случай если пользователь был только что подтвержден в CRM)
+        if (!isAuthorized)
+        {
+            _logger.LogInformation("Пользователь @{Username} не найден в кэше, принудительно обновляем список", username);
+            await RefreshAllowedUsersAsync();
+            isAuthorized = await IsUserAuthorizedAsync(username);
+        }
+
+        if (!isAuthorized)
         {
             _logger.LogWarning("Неавторизованная попытка callback от @{Username} (ID: {UserId})",
                 username ?? "без_username", userId);
