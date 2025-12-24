@@ -1,4 +1,5 @@
 # Stage 1: Build
+# Force rebuild: 2024-12-24
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
