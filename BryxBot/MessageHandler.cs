@@ -152,7 +152,9 @@ public class MessageHandler
                 }
                 else
                 {
-                    _logger.LogError("Failed to register user. Status: {StatusCode}", response.StatusCode);
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Failed to register user @{Username}. Status: {StatusCode}, Response: {Response}",
+                        username, response.StatusCode, errorContent);
                     await SendDefaultWelcome(botClient, chatId, cancellationToken);
                 }
             }
@@ -549,7 +551,7 @@ public class MessageHandler
     {
         try
         {
-            var response = await _httpClient.GetAsync("users");
+            var response = await _httpClient.GetAsync("/users");
 
             if (response.IsSuccessStatusCode)
             {
