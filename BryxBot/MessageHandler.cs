@@ -105,7 +105,7 @@ public class MessageHandler
                     LastName = lastName
                 };
 
-                var response = await _httpClient.PostAsJsonAsync("/users/register", registrationRequest);
+                var response = await _httpClient.PostAsJsonAsync("users/register", registrationRequest);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -246,7 +246,7 @@ public class MessageHandler
     {
         try
         {
-            var response = await _httpClient.GetAsync("/products?pageSize=5");
+            var response = await _httpClient.GetAsync("products?pageSize=5");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -308,7 +308,7 @@ public class MessageHandler
     {
         try
         {
-            var response = await _httpClient.GetAsync("/sales?pageSize=5");
+            var response = await _httpClient.GetAsync("sales?pageSize=5");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -369,7 +369,7 @@ public class MessageHandler
     {
         try
         {
-            var response = await _httpClient.GetAsync("/stats");
+            var response = await _httpClient.GetAsync("stats");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -551,7 +551,7 @@ public class MessageHandler
     {
         try
         {
-            var response = await _httpClient.GetAsync("/users");
+            var response = await _httpClient.GetAsync("users");
 
             if (response.IsSuccessStatusCode)
             {
