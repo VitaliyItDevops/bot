@@ -508,6 +508,60 @@ public class MessageHandler
     {
         try
         {
+            // Сначала получаем текущий статус продажи
+            var getSaleResponse = await _httpClient.GetAsync($"sales/{saleId}");
+
+            if (!getSaleResponse.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to get sale {SaleId}. Status: {StatusCode}", saleId, getSaleResponse.StatusCode);
+                await botClient.AnswerCallbackQuery(
+                    callbackQuery.Id,
+                    "❌ Не удалось получить данные о продаже.",
+                    showAlert: true,
+                    cancellationToken: cancellationToken
+                );
+                return;
+            }
+
+            var saleData = await getSaleResponse.Content.ReadFromJsonAsync<SaleDetailsResponse>();
+
+            if (saleData == null)
+            {
+                _logger.LogError("Failed to parse sale {SaleId} data", saleId);
+                await botClient.AnswerCallbackQuery(
+                    callbackQuery.Id,
+                    "❌ Ошибка при получении данных о продаже.",
+                    showAlert: true,
+                    cancellationToken: cancellationToken
+                );
+                return;
+            }
+
+            // Проверяем статус
+            if (saleData.Status == "Отправлено")
+            {
+                await botClient.AnswerCallbackQuery(
+                    callbackQuery.Id,
+                    "ℹ️ Эта продажа уже отмечена как отправленная.",
+                    showAlert: true,
+                    cancellationToken: cancellationToken
+                );
+                _logger.LogInformation("Sale {SaleId} is already shipped", saleId);
+                return;
+            }
+
+            if (saleData.Status != "Ожидает")
+            {
+                await botClient.AnswerCallbackQuery(
+                    callbackQuery.Id,
+                    $"⚠️ Невозможно отправить продажу со статусом '{saleData.Status}'",
+                    showAlert: true,
+                    cancellationToken: cancellationToken
+                );
+                _logger.LogWarning("Cannot ship sale {SaleId} with status {Status}", saleId, saleData.Status);
+                return;
+            }
+
             // Отправляем запрос к CRM API для изменения статуса
             var response = await _httpClient.PostAsync($"sales/{saleId}/ship", null);
 

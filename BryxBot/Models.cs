@@ -91,3 +91,26 @@ public class AllowedUsersResponse
     public List<string> AllowedUsers { get; set; } = new();
     public int Count { get; set; }
 }
+
+public class SaleDetailsResponse
+{
+    public int Id { get; set; }
+    public string Buyer { get; set; } = string.Empty;
+    public DateTime SaleDate { get; set; }
+    public decimal TotalAmount { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string? TTN { get; set; }
+    public string? SoldThrough { get; set; }
+    public string? AdditionalService { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public List<SaleProductDto> Products { get; set; } = new();
+}
+
+public class SaleProductDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public decimal SalePrice { get; set; }
+}
